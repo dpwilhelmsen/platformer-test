@@ -235,8 +235,8 @@ class Collision:
                     frictionY = 0
 
                 #Apply platform friction
-                player._vx += ox * frictionX
-                player._vy += oy * frictionY
+                player._vx += ox - frictionX
+                player._vy += oy - frictionY
                 player._vy = 0
 
                 #Move the player out of the collision
