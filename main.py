@@ -14,8 +14,8 @@ RIGHT = 'right'
 LEFT = 'left'
 
 class Player:
-	# Constants used for physics applied to a player. Can be abstracted out and used in other 
-	# moving classes (like enimies ai)
+    # Constants used for physics applied to a player. Can be abstracted out and used in other 
+    # moving classes (like enimies ai)
     FRICTION = 0.6
     SPEED_LIMIT = 5
     GRAVITY = 0.8
@@ -157,13 +157,13 @@ class Platform:
 class Collision:
 
     def playerAndPlatform(self, player, platform, bounce, friction):
-		# Player center points and half width/height
+        # Player center points and half width/height
         playerCenterX = player.centerX()
         playerCenterY = player.centerY()
         playerHalfWidth = player.width / 2
         playerHalfHeight = player.height / 2
-		
-		# Platform center points and half width/height
+        
+        # Platform center points and half width/height
         platformCenterX = platform.centerX()
         platformCenterY = platform.centerY()
         platformHalfWidth = platform.width / 2
@@ -173,9 +173,9 @@ class Collision:
         dx = platformCenterX - playerCenterX
 
         # Find the amount of overlap on the x axis. Since the distance delta (dx) is between
-		# the center point of the platform to the center point of the player, we add the
-		# half widths of each object, the subtract the absolute value of the distance. If 
-		# ox > 0, we know that the two objects overlap. If it's less than zero, they are not.
+        # the center point of the platform to the center point of the player, we add the
+        # half widths of each object, the subtract the absolute value of the distance. If 
+        # ox > 0, we know that the two objects overlap. If it's less than zero, they are not.
         ox = platformHalfWidth + playerHalfWidth - math.fabs(dx)
 
         # Check for collisions on the x axis
@@ -221,7 +221,7 @@ class Collision:
                 newDirectionY = directionOfCollision * dy
 
                 # Find the "tangent velocity" the speed in the direction that the object is moving. 
-				# Used to calculate additional platform friction
+                # Used to calculate additional platform friction
                 tangent_vx = player._vx - newDirectionX
                 tangent_vy = player._vy - newDirectionY
 
@@ -266,10 +266,10 @@ def main():
         Platform(320, 225),
         Platform(20, 175),
         Platform(440, WINDOWHEIGHT - 90),
-		Platform(470, WINDOWHEIGHT - 90),
+        Platform(470, WINDOWHEIGHT - 90),
         Platform(120, WINDOWHEIGHT - 80),
         Platform(220, 340),
-		Platform(430, 250),
+        Platform(430, 250),
     ]
 
     FPSCLOCK = pygame.time.Clock()
@@ -281,8 +281,8 @@ def main():
     while True:
 
         DISPLAYSURF.fill(BGCOLOR) # Drawing the window
-		
-		# Run a collision check for the player with all of the platforms
+        
+        # Run a collision check for the player with all of the platforms
         for platform in platformList:
             collision.playerAndPlatform(player, platform, 0.2, 0)
 
@@ -295,14 +295,14 @@ def main():
             if event.type == KEYUP :
                 player.onKeyUp(event)
 
-		# Update the player's position
+        # Update the player's position
         player.update()
 
-		# Render the platforms
+        # Render the platforms
         for platform in platformList:
             DISPLAYSURF.blit(platform.image, (platform.x, platform.y))
-		
-		# Render the player
+        
+        # Render the player
         DISPLAYSURF.blit(player.image, (player.x, player.y))
 
         pygame.display.update()
