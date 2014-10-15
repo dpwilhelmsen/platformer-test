@@ -7,7 +7,7 @@ WINDOWHEIGHT = 480
 BGCOLOR = (60,60,100)
 BLUE = (0,0,255)
 
-#Key Constants
+# Key Constants
 UP = 'up'
 DOWN = 'down'
 RIGHT = 'right'
@@ -22,11 +22,11 @@ class Player:
     ACCELERATION = 1.5
     BOUNCE = -0.3
     JUMP_FORCE = -12
-    BOTTOM_OFFSET = 0 #Pixels from the bottom of the window to the top of the ground
+    BOTTOM_OFFSET = 0 # Pixels from the bottom of the window to the top of the ground
 
     def __init__(self, x, y):
 
-        # Set image for player
+        # Set player class properties
         self.image = pygame.image.load('spellun-sprite.png')
         self.rect = self.image.get_rect()
         self.width = self.image.get_width()
@@ -54,7 +54,7 @@ class Player:
 
     def onKeyDown(self, event):
         if event.key == K_LEFT or event.key == K_RIGHT:
-            #Player is moving so disable friction
+            # Player is moving so disable friction
             self._friction = 1
 
         if event.key == K_LEFT:
@@ -81,7 +81,7 @@ class Player:
             self._accelerationY = 0
 
     def update(self):
-        #Apply Acceleration
+        # Apply Acceleration to velocity value
         self._vx += self._accelerationX
         if self._vx > self.SPEED_LIMIT:
             self._vx = self.SPEED_LIMIT
@@ -92,10 +92,10 @@ class Player:
         if self._vy > self.SPEED_LIMIT * 3:
             self._vy = self.SPEED_LIMIT * 3
 
-        #Apply Friction
+        # Apply Friction
         if self._isOnGround:
             self._vx *= self._friction
-        #Make sure velocity eventually reaches zero
+        # Make sure velocity eventually reaches zero
         if math.fabs(self._vx) < 0.1:
             self._vx = 0
         if math.fabs(self._vy) < 0.1:
@@ -103,26 +103,26 @@ class Player:
 
         self._vy += self.GRAVITY
 
-        #Apply bounce from collisions
+        # Apply bounce from collisions
         self.x += self._bounceX
         self.y += self._bounceY
 
-        #Move Player
+        # Move Player
         self.x += self._vx
         self.y += self._vy
 
-        #Reset platform bounce values
+        # Reset platform bounce values
         self._bounceX = 0
         self._bounceY = 0
 
-        #Prevent player from moving up if it's not on the ground
+        # Prevent player from moving up if it's not on the ground
         if not   self._isOnGround:
             self._accelerationY = 0
 
         if self._vy >= 0:
             self._isOnGround = False
 
-        #Set window boundries
+        # Set window boundries
         if self.x + self.width > WINDOWWIDTH:
             self._vx = 0
             self.x = WINDOWWIDTH - self.width
@@ -157,95 +157,101 @@ class Platform:
 class Collision:
 
     def playerAndPlatform(self, player, platform, bounce, friction):
+		# Player center points and half width/height
         playerCenterX = player.centerX()
         playerCenterY = player.centerY()
         playerHalfWidth = player.width / 2
         playerHalfHeight = player.height / 2
-
+		
+		# Platform center points and half width/height
         platformCenterX = platform.centerX()
         platformCenterY = platform.centerY()
         platformHalfWidth = platform.width / 2
         platformHalfHeight = platform.height / 2
 
-        #Find the distance between the player and platform on the x axis
+        # Find the distance between the player and platform on the x axis
         dx = platformCenterX - playerCenterX
 
-        #Find the amount of overlap on the x axis
+        # Find the amount of overlap on the x axis. Since the distance delta (dx) is between
+		# the center point of the platform to the center point of the player, we add the
+		# half widths of each object, the subtract the absolute value of the distance. If 
+		# ox > 0, we know that the two objects overlap. If it's less than zero, they are not.
         ox = platformHalfWidth + playerHalfWidth - math.fabs(dx)
 
-        #Check for collisions on the x axis
+        # Check for collisions on the x axis
         if ox > 0:
-            #If objects overlap on x axis, a collision might be occuring. Set vars to check on y axis
+            # If objects overlap on x axis, a collision might be occuring. Set vars to check on y axis
             dy = playerCenterY - platformCenterY
             oy = platformHalfHeight + playerHalfHeight - math.fabs(dy)
 
             if oy > 0:
-                #Collision occuring.  Let's find which side
+                # Collision occuring.  Let's find which side
                 if ox < oy:
                     if dx < 0:
-                        #Collision on right
+                        # Collision on right
                         oy = 0
                         dx = 1
                         dy = 0
                     else:
-                        #Collision on left
+                        # Collision on left
                         oy = 0
                         ox *= -1
                         dx = -1
                         dy = 0
                 else:
                     if dy < 0:
-                        #Collision on Top
+                        # Collision on Top
                         ox = 0
                         oy *= -1
                         dx = 0
                         dy = -1
-                        #Set isOnGround
+                        # Set isOnGround
                         player.isOnGround(True)
                     else:
-                        #collision on bottom
+                        # collision on bottom
                         ox = 0
                         dx = 0
                         dy = 1
 
-                #Find the direction of the collision
+                # Find the direction of the collision
                 directionOfCollision = player._vx * dx + player._vy * dy
 
-                #Calculate the new direction for the bounce
+                # Calculate the new direction for the bounce
                 newDirectionX = directionOfCollision * dx
                 newDirectionY = directionOfCollision * dy
 
-                #Find the "tangent velocity" the speed in the direction that the object is moving. Used to calculate additional platform friction
+                # Find the "tangent velocity" the speed in the direction that the object is moving. 
+				# Used to calculate additional platform friction
                 tangent_vx = player._vx - newDirectionX
                 tangent_vy = player._vy - newDirectionY
 
-                #Apply collision forces if the object is moving into a colision
+                # Apply collision forces if the object is moving into a colision
                 if directionOfCollision < 0:
-                    #Calculate the friction
+                    # Calculate the friction
                     frictionX = tangent_vx * friction
                     frictionY = tangent_vy * friction
 
-                    #Calculate the amount of bounce
+                    # Calculate the amount of bounce
                     bounceX = newDirectionX * bounce
                     bounceY = newDirectionY * bounce
 
                 else:
-                    #Prevent forces from being applied if the object is moving out of a collision
+                    # Prevent forces from being applied if the object is moving out of a collision
                     bounceX = 0
                     bounceY = 0
                     frictionX = 0
                     frictionY = 0
 
-                #Apply platform friction
+                # Apply platform friction
                 player._vx += ox - frictionX
                 player._vy += oy - frictionY
                 player._vy = 0
 
-                #Move the player out of the collision
+                # Move the player out of the collision
                 player.x += ox
                 player.y += oy
 
-                #Bounce the player off the platform
+                # Bounce the player off the platform
                 player._bounceX = bounceX
                 player._bounceY = bounceY
 
@@ -274,11 +280,13 @@ def main():
 
     while True:
 
-        DISPLAYSURF.fill(BGCOLOR) #Drawing the window
+        DISPLAYSURF.fill(BGCOLOR) # Drawing the window
+		
+		# Run a collision check for the player with all of the platforms
         for platform in platformList:
             collision.playerAndPlatform(player, platform, 0.2, 0)
 
-        for event in pygame.event.get(): #event handling loop
+        for event in pygame.event.get(): # event handling loop
             if event.type == QUIT or (event.type == KEYUP and event.key == K_ESCAPE):
                 pygame.quit()
                 sys.exit()
@@ -287,12 +295,14 @@ def main():
             if event.type == KEYUP :
                 player.onKeyUp(event)
 
-
+		# Update the player's position
         player.update()
 
+		# Render the platforms
         for platform in platformList:
             DISPLAYSURF.blit(platform.image, (platform.x, platform.y))
-
+		
+		# Render the player
         DISPLAYSURF.blit(player.image, (player.x, player.y))
 
         pygame.display.update()
