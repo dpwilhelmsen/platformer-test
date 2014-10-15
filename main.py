@@ -14,6 +14,8 @@ RIGHT = 'right'
 LEFT = 'left'
 
 class Player:
+	# Constants used for physics applied to a player. Can be abstracted out and used in other 
+	# moving classes (like enimies ai)
     FRICTION = 0.6
     SPEED_LIMIT = 5
     GRAVITY = 0.8
@@ -127,7 +129,7 @@ class Player:
         elif self.x < 0:
             self._vx = 0
             self.x = 0
-        if self.y - self.height < 0:
+        if self.y < 0:
             self._vy = 0
             self.y = 0 + self.height
         elif self.y + self.height > WINDOWHEIGHT - self.BOTTOM_OFFSET:
@@ -253,13 +255,15 @@ def main():
     platformList = [
         Platform(320, WINDOWHEIGHT - 80),
         Platform(350, WINDOWHEIGHT - 80),
-        Platform(200, 124),
+        Platform(200, 164),
         Platform(560, 324),
         Platform(320, 225),
         Platform(20, 175),
         Platform(440, WINDOWHEIGHT - 90),
+		Platform(470, WINDOWHEIGHT - 90),
         Platform(120, WINDOWHEIGHT - 80),
         Platform(220, 340),
+		Platform(430, 250),
     ]
 
     FPSCLOCK = pygame.time.Clock()
